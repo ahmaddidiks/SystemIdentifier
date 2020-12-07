@@ -61,7 +61,7 @@ while(SpamTimer <= waktuAkhir ){
     /*
      * RUN THIS CODE FOR COLLECTING DATA AND COMMENT PID TEST
      Collecting data with random value PWM
-     nilaiRandom = random(-1000,1000);
+     nilaiRandom = random(100,600);
      analogWrite(motor,map(nilaiRandom, -1000, 1000, -255, 255)); //set pwm motor as random number
     //show nilaiRandom value as a PWM
     Serial.print(nilaiRandom);
