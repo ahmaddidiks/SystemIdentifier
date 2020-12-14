@@ -7,12 +7,12 @@
 
 #include <AutoPID.h>
 
-double setPoint = 400;
+double setPoint = 250;
 double pwm, speedInRPM;
 
 
 //waktu inc 0-1000 = 10000*10 (sampling time = 10ms) = 10000 
-#define waktuAmbilData 1000 //berapa lama ambil datanya (ms)
+#define waktuAmbilData 2000 //berapa lama ambil datanya (ms)
 
 #define KP 32.9279740191956//2.0086510034733
 #define KI 196.610205687394//29.8109534766749
@@ -73,29 +73,25 @@ while(SpamTimer <= waktuAkhir ){
     
     SpamTimer = millis();
     
-    /*
-     * RUN THIS CODE FOR COLLECTING DATA AND COMMENT PID TEST
-     Collecting data with random value PWM
-     nilaiRandom = random(100,600);
-     analogWrite(motor,map(nilaiRandom, -1000, 1000, -255, 255)); //set pwm motor as random number
-    //show nilaiRandom value as a PWM
-    Serial.print(nilaiRandom);
-    Serial.print(" ");
-     */
-
-     // /*RUN THIS CODE FOR PID TEST AND COMMENT COLLECTING DATA
-    //PID test
     
-    //pwm = computePID(setPoint);
-    //if(pwm > 1000) pwm = 1000;
-    //else if(pwm < -1000) pwm = -1000;
-    //analogWrite(motor,map(pwm, -1000, 1000, -255, 255)); //set pwm motor as random number
+     // RUN THIS CODE FOR COLLECTING DATA AND COMMENT PID TEST
+     //Collecting data with random value PWM
+     //nilaiRandom = random(100,700);
+     //analogWrite(motor,map(nilaiRandom, 0, 1000, 0, 255)); //set pwm motor as random number
+    //show nilaiRandom value as a PWM
+    //Serial.print(nilaiRandom);
+    //Serial.print(" ");
+     
+
+      //RUN THIS CODE FOR PID TEST AND COMMENT COLLECTING DATA
+    //PID test
     myPID.run(); //call every loop, updates automatically at certain time interval
     analogWrite(motor,pwm); //use PID Lib
+    
     //show PWM value
     Serial.print(pwm);
     Serial.print(" ");
-    //*/
+    
 
     //show Encoder value
     //Serial.println(EncoderCounter);
