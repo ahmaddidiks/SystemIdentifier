@@ -5,14 +5,22 @@
 
 */
 
-#define setPoint 200
+#include <AutoPID.h>
+
+double setPoint = 400;
+double pwm, speedInRPM;
+
+
 //waktu inc 0-1000 = 10000*10 (sampling time = 10ms) = 10000 
-#define waktuAmbilData 10000 //berapa lama ambil datanya (ms)
+#define waktuAmbilData 1000 //berapa lama ambil datanya (ms)
 
-#define kp 32.9279740191956//2.0086510034733
-#define ki 196.610205687394//29.8109534766749
-#define kd 1.20746780266902
+#define KP 32.9279740191956//2.0086510034733
+#define KI 196.610205687394//29.8109534766749
+#define KD 1.20746780266902
+#define OUTPUT_MIN 0
+#define OUTPUT_MAX 255
 
+#define LED_PIN 13
 #define motor 5
 #define pinA 6
 #define pinB 7
@@ -27,17 +35,23 @@ long nilaiRandom;
 unsigned long waktuAwal,waktuAkhir;
 
 volatile long EncoderCounter = 0;
-volatile float SpeedInRPM = 0;
-int pwm;
+
+//input/output variables passed by reference, so they are updated automatically
+AutoPID myPID(&speedInRPM, &setPoint, &pwm, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
  
 void setup() {
   // put your setup code here, to run once:
 pinMode(motor, OUTPUT);
-pinMode(pinA, OUTPUT);
-pinMode(pinB, OUTPUT);
+pinMode(pinA, OUTPUT); digitalWrite(pinA, LOW);
+pinMode(pinB, OUTPUT); digitalWrite(pinB, HIGH); //FORWARD
 pinMode(ClockPin, INPUT); 
 pinMode(DataPin, INPUT);
+pinMode(LED_PIN, OUTPUT);
 attachInterrupt(0,onPin2CHANGECallBackFunction,RISING);
+
+
+myPID.setBangBang(100);
+myPID.setTimeStep(1);
 
 Serial.begin(57600);
 Serial.println("Serial Test");
@@ -47,6 +61,7 @@ for (int i=0;i<=5;i++){
   delay(1000);
         }
 waktuAwal = millis();
+
 waktuAkhir = waktuAwal+waktuAmbilData;
 }
 
@@ -54,7 +69,7 @@ void loop() {
   // put your main code here, to run repeatedly:
 static unsigned long SpamTimer;
 while(SpamTimer <= waktuAkhir ){
-  if ( (unsigned long)(millis() - SpamTimer) >= (10)) {
+  if ( (unsigned long)(millis() - SpamTimer) >= (3)) {
     
     SpamTimer = millis();
     
@@ -70,8 +85,13 @@ while(SpamTimer <= waktuAkhir ){
 
      // /*RUN THIS CODE FOR PID TEST AND COMMENT COLLECTING DATA
     //PID test
-    pwm = computePID(setPoint);
-    analogWrite(motor,map(pwm, -1000, 1000, -255, 255)); //set pwm motor as random number
+    
+    //pwm = computePID(setPoint);
+    //if(pwm > 1000) pwm = 1000;
+    //else if(pwm < -1000) pwm = -1000;
+    //analogWrite(motor,map(pwm, -1000, 1000, -255, 255)); //set pwm motor as random number
+    myPID.run(); //call every loop, updates automatically at certain time interval
+    analogWrite(motor,pwm); //use PID Lib
     //show PWM value
     Serial.print(pwm);
     Serial.print(" ");
@@ -82,8 +102,9 @@ while(SpamTimer <= waktuAkhir ){
     //Serial.print(" ");
 
     //show speed in RPM 
-    Serial.print(SpeedInRPM, 5);
+    Serial.print(speedInRPM, 5);
     Serial.println(",");
+    digitalWrite(LED_PIN, myPID.atSetPoint(10));//light up LED when we're at setpoint +-10 RPM
     }
   }
   if(SpamTimer >= waktuAkhir) analogWrite(motor,0); //motor off
@@ -105,15 +126,15 @@ void onPin2CHANGECallBackFunction(uint32_t Time, uint32_t PinsChanged, uint32_t 
 // calculate the DeltaT between pulses
     dTime = cTime - lTime;
     lTime = cTime;
-    SpeedInRPM = Multiplier / ((DataPinVal) ? dTime: (-1 * dTime)); // Calculate the RPM Switch DeltaT to either positive or negative to represent Forward or reverse RPM
+    speedInRPM = Multiplier / ((DataPinVal) ? dTime: (-1 * dTime)); // Calculate the RPM Switch DeltaT to either positive or negative to represent Forward or reverse RPM
 }
 
-int computePID(int setRPM){
-  float error, cumError, rateError, lastError;
-  
-  error =  (float) setRPM - SpeedInRPM; //get error
-  cumError += error; //integral
-  rateError = error - lastError; //derivatif
-  lastError = error;
-  return round ((kp * error) + (ki * cumError) + (kd * rateError));;
-}
+//int computePID(int setRPM){
+//  float error, cumError, rateError, lastError;
+//  
+//  error =  (float) setRPM - SpeedInRPM; //get error
+//  cumError += error; //integral
+//  rateError = error - lastError; //derivatif
+//  lastError = error;
+//  return round ((kp * error) + (ki * cumError) + (kd * rateError));;
+//}
