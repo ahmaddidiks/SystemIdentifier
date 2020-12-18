@@ -987,4 +987,7 @@ random = [
 128 401.60623]
 x = random(:,1);
 y = random(:,2);
-plot(x,y)
+plot(x) 
+hold on 
+plot(y)
+hold off
