@@ -6,19 +6,21 @@
 */
 
 #include <AutoPID.h>
-
-double setPoint = 250;
+int a;
+int b=0;
+const float pi = 3.14159267;
+double setPoint = 0;
 double pwm, speedInRPM;
 
 
 //waktu inc 0-1000 = 10000*10 (sampling time = 10ms) = 10000 
-#define waktuAmbilData 2000 //berapa lama ambil datanya (ms)
+#define waktuAmbilData 15000 //berapa lama ambil datanya (ms)
 
 #define KP 32.9279740191956//2.0086510034733
 #define KI 196.610205687394//29.8109534766749
 #define KD 1.20746780266902
 #define OUTPUT_MIN 0
-#define OUTPUT_MAX 255
+#define OUTPUT_MAX 1000
 
 #define LED_PIN 13
 #define motor 5
@@ -37,7 +39,7 @@ unsigned long waktuAwal,waktuAkhir;
 volatile long EncoderCounter = 0;
 
 //input/output variables passed by reference, so they are updated automatically
-AutoPID myPID(&speedInRPM, &setPoint, &pwm, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
+AutoPID myPID(&speedInRPM, &setPoint, &pwm, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD); 
  
 void setup() {
   // put your setup code here, to run once:
@@ -50,7 +52,7 @@ pinMode(LED_PIN, OUTPUT);
 attachInterrupt(0,onPin2CHANGECallBackFunction,RISING);
 
 
-myPID.setBangBang(100);
+myPID.setBangBang(200);
 myPID.setTimeStep(1);
 
 Serial.begin(57600);
@@ -68,39 +70,27 @@ waktuAkhir = waktuAwal+waktuAmbilData;
 void loop() {
   // put your main code here, to run repeatedly:
 static unsigned long SpamTimer;
+
 while(SpamTimer <= waktuAkhir ){
   if ( (unsigned long)(millis() - SpamTimer) >= (3)) {
     
     SpamTimer = millis();
     
     
-     // RUN THIS CODE FOR COLLECTING DATA AND COMMENT PID TEST
-     //Collecting data with random value PWM
-     //nilaiRandom = random(100,700);
-     //analogWrite(motor,map(nilaiRandom, 0, 1000, 0, 255)); //set pwm motor as random number
-    //show nilaiRandom value as a PWM
-    //Serial.print(nilaiRandom);
-    //Serial.print(" ");
-     
-
-      //RUN THIS CODE FOR PID TEST AND COMMENT COLLECTING DATA
-    //PID test
-    myPID.run(); //call every loop, updates automatically at certain time interval
-    analogWrite(motor,pwm); //use PID Lib
+    //run this code for motor driver test
+    //motorDriverTest();
+    //Run this code for collecting data
+    //nilaiAcak();
     
-    //show PWM value
-    Serial.print(pwm);
-    Serial.print(" ");
-    
-
-    //show Encoder value
-    //Serial.println(EncoderCounter);
-    //Serial.print(" ");
-
-    //show speed in RPM 
-    Serial.print(speedInRPM, 5);
-    Serial.println(",");
-    digitalWrite(LED_PIN, myPID.atSetPoint(10));//light up LED when we're at setpoint +-10 RPM
+    //Run this code for PID Test
+    a++;
+    //time = a*4ms (estimated)
+    if(a==25) { a=0;
+                b+=1;
+                setPoint = sin(b)*180/pi;
+                if (b==180) b=180;
+                }
+    PIDTest();
     }
   }
   if(SpamTimer >= waktuAkhir) analogWrite(motor,0); //motor off
@@ -125,12 +115,53 @@ void onPin2CHANGECallBackFunction(uint32_t Time, uint32_t PinsChanged, uint32_t 
     speedInRPM = Multiplier / ((DataPinVal) ? dTime: (-1 * dTime)); // Calculate the RPM Switch DeltaT to either positive or negative to represent Forward or reverse RPM
 }
 
-//int computePID(int setRPM){
-//  float error, cumError, rateError, lastError;
-//  
-//  error =  (float) setRPM - SpeedInRPM; //get error
-//  cumError += error; //integral
-//  rateError = error - lastError; //derivatif
-//  lastError = error;
-//  return round ((kp * error) + (ki * cumError) + (kd * rateError));;
-//}
+void motorDriverTest(){
+     nilaiRandom += 1;
+     analogWrite(motor,map(nilaiRandom, 0, 1000, 0, 255)); //set pwm motor as random number
+      //show nilaiRandom value as a PWM
+     Serial.print(nilaiRandom);
+     Serial.print(" ");
+
+     //show Encoder value
+    //Serial.println(EncoderCounter);
+    //Serial.print(" ");
+
+    //show speed in RPM 
+    Serial.print(speedInRPM, 5);
+    Serial.println(",");
+}
+
+void nilaiAcak(){
+     nilaiRandom = random(100,700); //10-70%
+     analogWrite(motor,map(nilaiRandom, 0, 1000, 0, 255)); //set pwm motor as random number
+      //show nilaiRandom value as a PWM
+     Serial.print(nilaiRandom);
+     Serial.print(" ");
+
+     //show Encoder value
+    //Serial.println(EncoderCounter);
+    //Serial.print(" ");
+
+    //show speed in RPM 
+    Serial.print(speedInRPM, 5);
+    Serial.println(",");
+}
+
+void PIDTest(){
+    myPID.run(); //call every loop, updates automatically at certain time interval
+    analogWrite(motor,map(pwm, 0, 1000, 0, 255)); //use PID Lib
+    
+    //show PWM value
+    Serial.print(setPoint);
+    Serial.print(" ");
+    
+
+    //show Encoder value
+    //Serial.println(EncoderCounter);
+    //Serial.print(" ");
+
+    //show speed in RPM 
+    Serial.print(speedInRPM, 5);
+    Serial.println(",");
+    digitalWrite(LED_PIN, myPID.atSetPoint(10));//light up LED when we're at setpoint +-10 RPM
+}

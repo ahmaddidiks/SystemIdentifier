@@ -19,6 +19,3 @@ damp(sys1)
 sgrid
 pzmap(sys1)
 grid on
-
-%analisa routh harwitz
-%hurwitz_sv(den)
