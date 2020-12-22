@@ -83,13 +83,13 @@ while(SpamTimer <= waktuAkhir ){
     //nilaiAcak();
     
     //Run this code for PID Test
-    a++;
+    //a++;
     //time = a*4ms (estimated)
-    if(a==25) { a=0;
-                b+=1;
-                setPoint = sin(b)*180/pi;
-                if (b==180) b=180;
-                }
+    //if(a==25) { a=0;
+    //            b+=1;
+    //            setPoint = sin(b)*180/pi;
+    //            if (b==180) b=180;
+    //            }
     PIDTest();
     }
   }
