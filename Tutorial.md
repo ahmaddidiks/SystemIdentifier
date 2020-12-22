@@ -21,7 +21,7 @@
 
 
 4. Upload file Arduino [CollectingDataset](CollectingDataset/CollectingDataset.ino) , kemudian lihat hasilnya di serial monitor. Jangan lupa unchecklist show timestamp dan BaudRate di 57600 \
-Uncomment motorDriverTest:
+Uncomment motorDriverTest() pada void loop():
 ```
     //run this code for motor driver test
        motorDriverTest();
@@ -54,7 +54,7 @@ Dapat dilihat bahwa linieritas dari PWM 100-700. maka rubah range nilai acak 100
         nilaiRandom = random(100,700); //10-70%
 ```
 
-6. Ulangi langkah no 4 sampai 5 dengan uncomment nilaiAcak():
+6. Ulangi langkah no 4 sampai 5 dengan uncomment nilaiAcak() pada void loop():
 ```
     //run this code for motor driver test
     // motorDriverTest();
@@ -108,6 +108,7 @@ Lihat transfer fungsi di kotak hasil (sebelah kanan)... disini aku menghasilkan 
         pzmap(sys1)
         grid on
 ```
+### JIKA BELUM STABIL ULANGI DARI LANGKAH 6 
 
 11. Buka simulink dan simulasikan dengan PID, lihat gambar berikut:\
 ![clone](pics/simulink.PNG)
@@ -118,7 +119,49 @@ Lihat transfer fungsi di kotak hasil (sebelah kanan)... disini aku menghasilkan 
 Kemudian tuning sesuai keinginanmu! dengan menggeser *time response* , lihat gambar: \
 ![clone](pics/tuning.PNG) \
 
-12. Simulasikan Hasil PID di simulink, disini menggunakan setpoin 300
-![clone](pics/tuning.PNG) \
+12. Simulasikan Hasil PID di simulink, lihat hasilnya, apabila bagus lanjut diaplikasikan ke hardware
 
+13. Aplikasikan ke Motor, ubah PID sesuai yang dihasilkan:
+Ubah Parameter PID
+```
+    #define KP 32.9279740191956//2.0086510034733
+    #define KI 196.610205687394//29.8109534766749
+    #define KD 1.20746780266902
+```
 
+Pada void setup() ubah parameter kerja PID, baca dokumentasi di [AutoPID](https://r-downing.github.io/AutoPID/)
+```
+    myPID.setBangBang(100);
+    myPID.setTimeStep(1);
+```
+Uncoment PIDTest() pada void loop(): 
+```
+    //run this code for motor driver test
+    //motorDriverTest();
+    //Run this code for collecting data
+    //nilaiAcak();
+    
+    //Run this code for PID Test
+    PIDTest();
+```
+Silahkan tes PID sesuai kebutuhan untuk mengetahui batasan performa yang dihasilkan:
+```
+void PIDTest(){
+    myPID.run(); //call every loop, updates automatically at certain time interval
+    analogWrite(motor,map(pwm, 0, 1000, 0, 255)); //use PID Lib
+    
+    //show PWM value
+    Serial.print(setPoint);
+    Serial.print(" ");
+    
+
+    //show Encoder value
+    //Serial.println(EncoderCounter);
+    //Serial.print(" ");
+
+    //show speed in RPM 
+    Serial.print(speedInRPM, 5);
+    Serial.println(",");
+    digitalWrite(LED_PIN, myPID.atSetPoint(10));//light up LED when we're at setpoint +-10 RPM
+}
+``
