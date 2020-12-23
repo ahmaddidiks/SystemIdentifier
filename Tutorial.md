@@ -34,8 +34,19 @@ Uncomment motorDriverTest() pada void loop():
 ![clone](pics/serialMonitor.PNG)
 
 
-5. Copy hasil serial monitor pindahkan ke Matlab, hapus "Collecting dataset in 5-1", lihat [datasetRandomValue](matlab/datasetRandomValue.m)
+5. Copy hasil serial monitor pindahkan ke Matlab, hapus "Collecting dataset in 5-1", lihat [data1k.m](matlab/data1k.m) dan [datasetRandomValue.m](matlab/datasetRandomValue.m)
 ```
+        data =[
+            ...
+            ...
+            ...
+              ];
+        
+        %untuk data step
+        y1k=data(:,2); %hanya butuh data RPM
+        plot(y1k)
+        
+        %untuk dataset RPM acak
         x = random(:,1);
         y = random(:,2);
         plot(x) 
