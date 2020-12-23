@@ -45,7 +45,7 @@ Uncomment motorDriverTest() pada void loop():
 ```
 Variabel 'x' mengambil kolom 1 dari data yang mana adalah input PWM dan varial 'y' mengambil kolom 2  dari data yang mana adalah output berupa RPM motor. Lihat hasil plot juga untuk memastikan data. lihat gambar berikut:
 
-![clone](pics/datamasuk.PNG)    ![clone](pics/plot.PNG) 
+![clone](pics/datamasuk.PNG)    ![clone](pics/step.PNG) 
 
 ## LANGSUNG KE LANGKAH 7 JIKA HANYA MENGGUNAKAN DATA STEP (HASILNYA TIDAK BEDA JAUH)!!!
 
