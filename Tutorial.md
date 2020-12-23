@@ -47,8 +47,8 @@ Uncomment motorDriverTest() pada void loop():
         plot(y1k)
         
         %untuk dataset RPM acak
-        x = random(:,1);
-        y = random(:,2);
+        x = data(:,1);
+        y = data(:,2);
         plot(x) 
         hold on 
         plot(y)
